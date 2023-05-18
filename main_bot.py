@@ -3,11 +3,12 @@ import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 
+# from config import MY_API_TOKEN_1    #Простой но менее безопасный способ хранения апи
+
 from os import getenv                  #Позволяет получать значения переменных окружения
 from dotenv import load_dotenv         #Предоставляет функцию загрузки переменных окружения из файла .env
 load_dotenv()                          #Эта функция загружает значения переменных окружения фвйла .env в текущую среду
 BOT_TOKEN = getenv('MY_API_TOKEN_1')   #Получаем значения переменной окружения с именем 'MY_API_TOKEN_1
-
 
 # Set up logging / Настроить ведение журнала
 logging.basicConfig(level=logging.INFO)
