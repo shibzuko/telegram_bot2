@@ -1,3 +1,5 @@
 .env/
 .idea/
 config.py/
+DataBase.db/
+venv/
