@@ -1,5 +1,7 @@
 # Import the necessary modules
 import logging
+import pytz                            # Библиотека для работы с часовым поясом
+from datetime import datetime
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 from os import getenv                  #Позволяет получать значения переменных окружения
@@ -50,12 +52,14 @@ BOT_TOKEN = getenv('MY_API_TOKEN_1')   #Получаем значения пер
 
 # Set up logging / Настроить ведение журнала
 logging.basicConfig(level=logging.INFO)
-
 # Create a bot instance
 bot = Bot(token=BOT_TOKEN)
-
 # Create a dispatcher instance / Создаёт экземпляр диспетчера
 dp = Dispatcher(bot)
+
+current_time = datetime.now(pytz.timezone('Europe/Moscow'))
+formatted_time = current_time.strftime('%Y-%m-%d %H:%M:%S')
+
 
 # Define a message handler that echoes back messages / Определите обработчик сообщений, который повторяет сообщения
 @dp.message_handler()
@@ -67,11 +71,16 @@ async def echo(message: types.Message):
         text=message.text,
         date=message.date
     )
+
+
+
     session.add(new_message)
     session.commit()
     # Вывод сообщения пользователю
     await message.answer(f'Ассаламу алейкум, {message.chat.first_name} {message.chat.last_name} '
-                         f'\nСейчас: {message.date}')
+                         f'\nСейчас: {formatted_time}')
+
+
 
 # Start the bot using the executor
 if __name__ == '__main__':
