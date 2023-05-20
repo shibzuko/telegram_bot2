@@ -1,8 +1,5 @@
 # Import the necessary modules
 import logging
-import psycopg2
-import os
-from xmlrpc.client import Boolean
 import pytz                            # Библиотека для работы с часовым поясом
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
@@ -12,27 +9,16 @@ from dotenv import load_dotenv         #Предоставляет функци�
 
 # Импорт модулей для работы с базой данных
 
-from aiogram.contrib.fsm_storage.memory import MemoryStorage   # Импорт модуля для хранения состояний
-from aiogram.dispatcher import FSMContext                      # Импорт модуля для работы с контекстом конечного автомата
-from aiogram.dispatcher.filters import Command                 # Импорт модуля для фильтрации команд
-from aiogram.dispatcher import filters                         # Импорт модуля для фильтрации сообщений
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton  # Импорт модулей для работы с клавиатурой
 from sqlalchemy import create_engine, Column, Integer, String, DateTime  # Импорт модулей для работы с базой данных
 from sqlalchemy.ext.declarative import declarative_base        # Импорт модуля для объявления таблицы
 from sqlalchemy.orm import sessionmaker                        # Импорт модуля для работы с сессиями базы данных
 from datetime import datetime                                  # Импорт модуля для работы с датой и временем
 
-load_dotenv('.env')                    #Эта функция загружает значения переменных окружения фвйла .env в текущую среду
 
 # Добавление объявления базы данных и создание таблицы сообщений
 
-database_url = os.environ['DATABASE_URL']  # Получите URL базы данных из переменной окружения
-engine = create_engine(database_url, sslmode='require')  # Создайте соединение с базой данных
 Base = declarative_base()
-
-
-# Base = declarative_base()
-# engine = create_engine(conn)  # Создание базы данных SQLite
+engine = create_engine('sqlite:///DataBase.db')  # Создание базы данных SQLite
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -51,9 +37,6 @@ class Message(Base):
     text = Column(String)
     date = Column(DateTime, default=datetime.utcnow)
 
-
-# Подключение к базе данных и создание таблицы
-
 Base.metadata.create_all(engine)
 
 # messages = session.query(Message).all()
@@ -64,6 +47,7 @@ Base.metadata.create_all(engine)
 #           f"is_premium: {message.is_premium}, text: {message.text}, date: {message.date})")
 
 
+load_dotenv()                          #Эта функция загружает значения переменных окружения фвйла .env в текущую среду
 BOT_TOKEN = getenv('MY_API_TOKEN_1')   #Получаем значения переменной окружения с именем 'MY_API_TOKEN_1
 
 # Set up logging / Настроить ведение журнала
@@ -97,11 +81,12 @@ async def echo(message: types.Message):
     # print(f"user_id: {new_message.user_id}, first_name: {new_message.first_name}, "
     #       f"last_name: {new_message.last_name}, username: {new_message.username}, text: {new_message.text}")
 
-    session.add(new_message)  #Добавляет новую запись в БД
+    session.add(new_message)
     session.commit()
     # Вывод сообщения пользователю
-    await message.answer(f'Ассаламу алейкум, {message.chat.first_name} {message.chat.last_name} '
+    await message.answer(f'Привет, {message.chat.first_name} {message.chat.last_name} '
                          f'\nСейчас: {formatted_time}')
+
 
 
 # Start the bot using the executor
