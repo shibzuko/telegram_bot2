@@ -85,7 +85,7 @@ async def echo(message: types.Message):
     session.commit()
     # Вывод сообщения пользователю
     await message.answer(f'Ассаламу алейкум, {message.chat.first_name} {message.chat.last_name} '
-                         f'\nСейчас: {formatted_time}')
+                         f'\nТвой ID: {message.chat.id}')
 
 
 
