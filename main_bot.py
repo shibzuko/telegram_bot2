@@ -4,7 +4,7 @@ import io
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 from past.builtins import execfile
-from api_vk import get_user_status, get_user_photos_saved, photo_list
+from api_vk import get_user_status, get_user_photos_saved
 
 
 from config import TOKEN
@@ -21,7 +21,7 @@ async def hello(message: types.Message):
     VK_ID = '223134565'
     if VK_ID.isdigit():
         vk_status = get_user_status(VK_ID)['text']
-        get_user_photos_saved(VK_ID)
+        photo_list = get_user_photos_saved(VK_ID)
         await message.answer('Секундочку...')
         await bot.send_chat_action(chat_id, action=types.ChatActions.UPLOAD_PHOTO)
         for photo_url in photo_list:
