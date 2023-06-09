@@ -20,7 +20,8 @@ def get_user_status(vk_id = 223134565):
 # Аватарка пользователя
 
 def get_user_avatar(vk_id=223134565):
-    avatar = session.method('photos.get', {'user_id': vk_id, 'album_id': 'profile'})
+    avatar_dict = session.method('users.get', {'user_id': vk_id, 'fields': 'photo_max_orig'})
+    avatar = avatar_dict[0]['photo_max_orig']
     return avatar
 
 # print(get_user_avatar())

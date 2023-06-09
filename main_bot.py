@@ -1,4 +1,6 @@
 import logging
+import urllib
+
 import requests
 import io
 from aiogram import Bot, Dispatcher, types
@@ -21,12 +23,11 @@ b5 = types.KeyboardButton('Ещё одна')
 keyboard.add(b1, b2, b3, b4, b5)
 
 
-help_text = """
-/start - запуск бота, вызыв клавиатуры\n
-/get_save_photo - оправит тебе созраненки\n
-/help - ну эта команда для глупеньких\n
-ну ара сытыми дальше и так все понятно..
-"""
+help_text = f'<i>/start - запуск бота, вызыв клавиатуры</i>\n\n'\
+f'<i>/get_save_photo - оправит тебе бомбические сохраненки</i>\n\n'\
+f'<i>/help - ну эта команда для глупеньких</i>\n\n'\
+f'<i>ну ара сытыми дальше и так все понятно..</i>'
+
 
 
 logging.basicConfig(level=logging.INFO)
@@ -50,8 +51,9 @@ async def start(message: types.Message):
 
 @dp.message_handler(commands='help')
 async def help(message: types.Message):
-    await message.answer(f'{help_text}')
-    await message.delete()
+    chat_id = message.chat.id
+    await bot.send_message(chat_id, help_text, parse_mode='html')
+    # await message.delete()
 
 
 @dp.message_handler(commands='get_save_photo')
@@ -68,15 +70,12 @@ async def get_save_photo(message: types.Message):
         elif len(photo_list) == 0:
             await message.answer(f'У этого пользователя нет сохраненок 🥺')
         else:
-            await bot.send_chat_action(chat_id, action=types.ChatActions.UPLOAD_PHOTO) # Сообщает юзеру об отправке фото
             for photo_url in photo_list:
-                photo_content = download_photo(photo_url)
-                photo_file = types.InputFile(io.BytesIO(photo_content), filename='photo.jpg')
-                media_group.append(types.InputMediaPhoto(photo_file))
-            await bot.send_chat_action(chat_id, action=types.ChatActions.UPLOAD_PHOTO) # Сообщает юзеру об отправке фото
+                media_group.append(types.InputMediaPhoto(media=photo_url))
+            await bot.send_chat_action(chat_id, action=types.ChatActions.UPLOAD_PHOTO)  # Сообщает юзеру об отправке фото
             await message.answer('Крайние 10 сохраненок:')
             await bot.send_media_group(chat_id, media=media_group)
-    await message.delete()
+    # await message.delete()
 
 
 @dp.message_handler(commands='get_status')
@@ -88,20 +87,23 @@ async def get_status(message: types.Message):
         await message.answer(f'У этого пользователя нет статуса или он недоступен🥺')
     else:
         await message.answer(f'Статус: "{vk_status}" \U0001F60E')
-    await message.delete()
+    # await message.delete()
 
 
 @dp.message_handler(commands='get_avatar')
 async def get_avatar(message: types.Message):
+    chat_id = message.chat.id
     avatar = get_user_avatar(VK_ID)
-    await message.answer(avatar)
-    await message.delete()
+    await bot.send_chat_action(chat_id, action=types.ChatActions.UPLOAD_PHOTO)  # Сообщает юзеру об отправке фото
+
+    await bot.send_photo(chat_id, photo=avatar)
+    # await message.delete()
 
 
 @dp.message_handler(commands='mems')
 async def mems(message: types.Message):
     await message.answer(f'Отстань.')
-    await message.delete()
+    # await message.delete()
 
 
 @dp.message_handler(content_types=types.ContentType.TEXT)
