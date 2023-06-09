@@ -5,7 +5,9 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from past.builtins import execfile
-from api_vk import get_user_status, get_user_photos_saved
+from vk_api import ApiError
+
+from api_vk import get_user_status, get_user_photos_saved, get_user_avatar
 from config import TOKEN, VK_ID, VIP_USER
 
 
@@ -51,35 +53,50 @@ async def help(message: types.Message):
     await message.answer(f'{help_text}')
     await message.delete()
 
+
 @dp.message_handler(commands='get_save_photo')
 async def get_save_photo(message: types.Message):
     media_group = []
     chat_id = message.chat.id
     if VK_ID.isdigit():
-        photo_list = get_user_photos_saved(VK_ID)
         await message.answer('Секундочку...🐌')
-        await bot.send_chat_action(chat_id, action=types.ChatActions.UPLOAD_PHOTO) # Сообщает юзеру об отправке фото
-        for photo_url in photo_list:
-            photo_content = download_photo(photo_url)
-            photo_file = types.InputFile(io.BytesIO(photo_content), filename='photo.jpg')
-            media_group.append(types.InputMediaPhoto(photo_file))
-        await bot.send_chat_action(chat_id, action=types.ChatActions.UPLOAD_PHOTO) # Сообщает юзеру об отправке фото
-        await message.answer('Крайние 10 сохраненок:')
-        await bot.send_media_group(chat_id, media=media_group)
+
+        photo_list = get_user_photos_saved(VK_ID)
+
+        if photo_list is None:
+            await message.answer(f'У вас нет доступа к сохраненкам этого пользователя 🔒')
+        elif len(photo_list) == 0:
+            await message.answer(f'У этого пользователя нет сохраненок 🥺')
+        else:
+            await bot.send_chat_action(chat_id, action=types.ChatActions.UPLOAD_PHOTO) # Сообщает юзеру об отправке фото
+            for photo_url in photo_list:
+                photo_content = download_photo(photo_url)
+                photo_file = types.InputFile(io.BytesIO(photo_content), filename='photo.jpg')
+                media_group.append(types.InputMediaPhoto(photo_file))
+            await bot.send_chat_action(chat_id, action=types.ChatActions.UPLOAD_PHOTO) # Сообщает юзеру об отправке фото
+            await message.answer('Крайние 10 сохраненок:')
+            await bot.send_media_group(chat_id, media=media_group)
     await message.delete()
 
 
 @dp.message_handler(commands='get_status')
 async def get_status(message: types.Message):
     vk_status = get_user_status(VK_ID)['text']
-    await message.answer(f'Статус: "{vk_status}" \U0001F60E')
+    if vk_status is None:
+        await message.answer(f'Страница не существует или отсутствует доступ 🔒')
+    elif len(vk_status) == 0:
+        await message.answer(f'У этого пользователя нет статуса или он недоступен🥺')
+    else:
+        await message.answer(f'Статус: "{vk_status}" \U0001F60E')
     await message.delete()
+
 
 @dp.message_handler(commands='get_avatar')
 async def get_avatar(message: types.Message):
-
-    await message.answer(f'Потом приходи')
+    avatar = get_user_avatar(VK_ID)
+    await message.answer(avatar)
     await message.delete()
+
 
 @dp.message_handler(commands='mems')
 async def mems(message: types.Message):
