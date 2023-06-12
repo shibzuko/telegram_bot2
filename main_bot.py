@@ -120,7 +120,7 @@ async def mems(message: types.Message):
 
 @dp.message_handler(content_types=types.ContentType.TEXT)
 async def handle_text(message: types.Message):
-    if message.text in 'Помощь':
+    if message.text == 'Помощь':
         await help(message)
     elif message.text == 'Сохры':
         await get_save_photo(message)
