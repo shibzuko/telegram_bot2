@@ -136,8 +136,8 @@ async def handle_text(message: types.Message):
     elif message.text[:2] == '//' and message.chat.id == int(ADMIN):
         messages = get_user_messages(message.text[2:])
         mess = [f'{m.id}. {m.message} | {m.date_message.strftime("%d.%m.%y %H:%M")}\n' for m in messages if messages]
-        print(''.join(mess))
-        await message.answer(f'd')
+        m = ''.join(mess)
+        await message.answer(m)
 
     else:
         await message.answer(f"Kъызгуры|уэкъым\n\nI don't understand\n\nЯ не понимаю\n\nIch verstehe nicht")
