@@ -2,6 +2,8 @@ import time
 
 from models import User, Message, session
 def add_user(chat_id, username, fullname):
+    if isinstance(username, str):
+        username = username.lower()
     user = User(
         telegram_id=int(chat_id),
         user_name=username,
@@ -35,7 +37,7 @@ def get_user_messages(identifier):
         user = session.query(User).filter_by(telegram_id=identifier).first()
     else:
         # Если `identifier` не является числовым значением, предполагаем, что это username
-        user = session.query(User).filter_by(user_name=identifier).first()
+        user = session.query(User).filter_by(user_name=identifier.lower()).first()
 
     if user:
         messages = session.query(Message).filter_by(telegram_id=user.telegram_id).all()

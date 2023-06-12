@@ -133,9 +133,9 @@ async def handle_text(message: types.Message):
     elif message.text == 'Старт':
         await start(message)
 
-    elif message.text[:2] == '//' and message.chat.id == int(ADMIN):
-        messages = get_user_messages(message.text[2:])
-        mess = [f'{m.id}. {m.message} | {m.date_message.strftime("%d.%m.%y %H:%M")}\n' for m in messages if messages]
+    elif message.text[:1] == '@' and message.chat.id == int(ADMIN):
+        messages = get_user_messages(message.text[1:])
+        mess = [f'{m.id}. "{m.message}"  {m.date_message.strftime("%d.%m.%y %H:%M")}\n' for m in messages if messages]
         m = ''.join(mess)
         await message.answer(m)
 
