@@ -134,7 +134,6 @@ async def handle_text(message: types.Message):
         await start(message)
 
     elif message.text[:2] == '//' and message.chat.id == int(ADMIN):
-        print('ffff')
         messages = get_user_messages(message.text[2:])
         mess = [f'{m.id}. {m.message} | {m.date_message.strftime("%d.%m.%y %H:%M")}\n' for m in messages if messages]
         print(''.join(mess))
