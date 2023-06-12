@@ -13,7 +13,7 @@ future==0.18.3
 greenlet==2.0.2
 idna==3.4
 magic-filter==1.0.9
-multidict==6.0.4
+multidict
 psycopg2-binary==2.9.6
 python-decouple==3.8
 python-dotenv==1.0.0

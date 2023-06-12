@@ -10,7 +10,8 @@ from past.builtins import execfile
 from vk_api import ApiError
 
 from api_vk import get_user_status, get_user_photos_saved, get_user_avatar
-from config import TOKEN, VK_ID, VIP_USER
+from config import TOKEN, VK_ID, VIP_USER, ADMIN
+from test import add_user, add_new_message, get_user_messages
 
 
 # Создание клавиатуры
@@ -20,6 +21,7 @@ b2 = types.KeyboardButton('Сохры')
 b3 = types.KeyboardButton('Статус')
 b4 = types.KeyboardButton('Аватарка')
 b5 = types.KeyboardButton('Ещё одна')
+b6_A = types.KeyboardButton('Сообщ в БД')
 keyboard.add(b1, b2, b3, b4, b5)
 
 
@@ -43,10 +45,14 @@ def download_photo(url):
 @dp.message_handler(commands='start')
 async def start(message: types.Message):
     chat_id = message.chat.id
+    username = message.chat.username
+    fullname = f'{message.chat.first_name} {message.chat.last_name}'
     if str(chat_id) == VIP_USER:
         await bot.send_message(chat_id, f'Чего желает самая прекрасная девушка на свете?🦭', reply_markup=keyboard)
     else:
         await bot.send_message(chat_id, f'Че надо?🗿', reply_markup=keyboard)
+    add_user(chat_id, username, fullname)
+    add_new_message(message)
 
 
 @dp.message_handler(commands='help')
@@ -54,6 +60,7 @@ async def help(message: types.Message):
     chat_id = message.chat.id
     await bot.send_message(chat_id, help_text, parse_mode='html')
     # await message.delete()
+    add_new_message(message)
 
 
 @dp.message_handler(commands='get_save_photo')
@@ -76,6 +83,8 @@ async def get_save_photo(message: types.Message):
             await message.answer('Крайние 10 сохраненок:')
             await bot.send_media_group(chat_id, media=media_group)
     # await message.delete()
+    add_new_message(message)
+
 
 
 @dp.message_handler(commands='get_status')
@@ -88,6 +97,7 @@ async def get_status(message: types.Message):
     else:
         await message.answer(f'Статус: "{vk_status}" \U0001F60E')
     # await message.delete()
+    add_new_message(message)
 
 
 @dp.message_handler(commands='get_avatar')
@@ -98,17 +108,19 @@ async def get_avatar(message: types.Message):
 
     await bot.send_photo(chat_id, photo=avatar)
     # await message.delete()
+    add_new_message(message)
 
 
 @dp.message_handler(commands='mems')
 async def mems(message: types.Message):
     await message.answer(f'Отстань.')
     # await message.delete()
+    add_new_message(message)
 
 
 @dp.message_handler(content_types=types.ContentType.TEXT)
 async def handle_text(message: types.Message):
-    if message.text == 'Помощь':
+    if message.text in 'Помощь':
         await help(message)
     elif message.text == 'Сохры':
         await get_save_photo(message)
@@ -118,6 +130,20 @@ async def handle_text(message: types.Message):
         await get_avatar(message)
     elif message.text == 'Ещё одна':
         await mems(message)
+    elif message.text == 'Старт':
+        await start(message)
+
+    elif message.text[:2] == '//' and message.chat.id == int(ADMIN):
+        print('ffff')
+        messages = get_user_messages(message.text[2:])
+        mess = [f'{m.id}. {m.message} | {m.date_message.strftime("%d.%m.%y %H:%M")}\n' for m in messages if messages]
+        print(''.join(mess))
+        await message.answer(f'd')
+
+    else:
+        await message.answer(f"Kъызгуры|уэкъым\n\nI don't understand\n\nЯ не понимаю\n\nIch verstehe nicht")
+        add_new_message(message)
+
 
 
 
