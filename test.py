@@ -1,5 +1,6 @@
-from models import User, Message, session
+import time
 
+from models import User, Message, session
 def add_user(chat_id, username, fullname):
     user = User(
         telegram_id=int(chat_id),
@@ -16,6 +17,8 @@ def add_new_message(message):
     user = session.query(User).filter_by(telegram_id=message.chat.id).first()
     if user is None:
         add_user(chat_id, username, fullname)
+        user = session.query(User).filter_by(telegram_id=message.chat.id).first()
+
     new_message = Message(
         telegram_id=user.telegram_id,
         message=message.text,
